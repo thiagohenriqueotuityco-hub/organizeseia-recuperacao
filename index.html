@@ -1,48 +1,58 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Organize-se IA — Recuperar senha</title>
 <style>
-:root{--bg:#071116;--panel:#0d1b23;--line:#1b3540;--text:#f4f8f9;--muted:#8ea6b0;--green:#25ef6b;--red:#ff7378}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#12303a 0,#071116 42%,#061016 100%);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);display:grid;place-items:center;padding:20px}.card{width:min(430px,100%);background:linear-gradient(180deg,#11252f,#0d1b23);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 12px 32px rgba(0,0,0,.25)}.brand{font-size:28px;font-weight:900}.brand span{color:var(--green)}h1{font-size:21px;margin:18px 0 6px}.muted{color:var(--muted);font-size:13px;line-height:1.5}.field{margin-top:16px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.field input{width:100%;background:#07151c;color:#fff;border:1px solid #24404c;border-radius:12px;padding:13px;outline:none}.field input:focus{border-color:var(--green)}button{width:100%;border:0;border-radius:13px;padding:13px 16px;font-weight:800;cursor:pointer;margin-top:14px}.primary{background:var(--green);color:#031009}.notice{margin-top:14px;padding:12px;border-radius:12px;background:#102d39;border:1px solid #1f5364;color:#cde5ed;font-size:13px}.error{background:#351c21;border-color:#613038;color:#ffb4b7}.ok{background:#0e3325;border-color:#267b4e;color:#d9ffe7}.hidden{display:none}.spinner{opacity:.7}
-</style>
-</head>
-<body>
-<div class="card">
-  <div class="brand">Organize-se <span>IA</span></div>
-  <div id="loading"><h1>Verificando seu link…</h1><div class="muted">Aguarde enquanto preparamos a recuperação da sua senha.</div></div>
-  <form id="form" class="hidden">
-    <h1>Crie uma nova senha</h1>
-    <div class="muted">Escolha uma nova senha para sua conta do Organize-se IA.</div>
-    <div class="field"><label>Nova senha</label><input id="password" type="password" minlength="6" autocomplete="new-password" required placeholder="Mínimo de 6 caracteres"></div>
-    <div class="field"><label>Confirmar nova senha</label><input id="confirm" type="password" minlength="6" autocomplete="new-password" required placeholder="Digite novamente"></div>
-    <button class="primary" type="submit">SALVAR NOVA SENHA</button>
-  </form>
-  <div id="message" class="notice hidden"></div>
-</div>
+:root{--bg:#071116;--panel:#0d1b23;--line:#1b3540;--text:#f4f8f9;--muted:#8ea6b0;--green:#25ef6b}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px 16px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% -10%,#12303a 0,var(--bg) 48%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.card{width:100%;max-width:600px;padding:clamp(24px,6vw,46px);border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,#102630,var(--panel));box-shadow:0 20px 60px #0003}
+.brand{margin-bottom:28px;font-size:clamp(30px,6vw,48px);font-weight:800;letter-spacing:-1.4px}.brand span{color:var(--green)}
+.muted{color:var(--muted);line-height:1.5}h1{margin:0 0 8px;font-size:clamp(25px,5vw,34px)}.field{margin:18px 0}
+label{display:block;margin-bottom:8px;color:var(--muted)}input{width:100%;padding:17px 18px;border:1px solid #294651;border-radius:17px;background:#07171d;color:var(--text);font:inherit;font-size:17px;outline:none}
+input:focus{border-color:var(--green);box-shadow:0 0 0 2px #25ef6b1f}button{width:100%;margin-top:8px;padding:17px;border:0;border-radius:17px;background:var(--green);color:#04140a;font:inherit;font-size:17px;font-weight:800;cursor:pointer}
+button:disabled{opacity:.65;cursor:wait}.notice{margin-top:18px;padding:16px 18px;border:1px solid #286d51;border-radius:16px;background:#10322c;color:#c6f7de;line-height:1.45}
+.notice.error{border-color:#71333a;background:#351d23;color:#ffb7bc}.hidden{display:none!important}
+</style></head>
+<body><main class="card">
+<div class="brand">Organize-se <span>IA</span></div>
+<section id="loading"><h1>Verificando seu link...</h1><div class="muted">Aguarde enquanto preparamos a recuperação da sua senha.</div></section>
+<form id="form" class="hidden"><h1>Crie uma nova senha</h1><p class="muted">Escolha uma nova senha para sua conta do Organize-se IA.</p>
+<div class="field"><label for="password">Nova senha</label><input id="password" type="password" minlength="6" autocomplete="new-password" required></div>
+<div class="field"><label for="confirm">Confirmar nova senha</label><input id="confirm" type="password" minlength="6" autocomplete="new-password" required></div>
+<button id="submit" type="submit">SALVAR NOVA SENHA</button></form>
+<div id="message" class="notice hidden" role="status"></div></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL='https://ocaetekjwezqhcqszbko.supabase.co';
-const params=new URLSearchParams(location.search);
-const key=params.get('key')||'';
-const msg=document.getElementById('message');
-function message(text,type=''){msg.textContent=text;msg.className='notice '+type;msg.classList.remove('hidden')}
+// Substitua pelo valor Publishable/anon em Supabase > Project Settings > API Keys.
+// Nunca use a Secret key ou service_role nesta página.
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_k-ILLorhWPA9YTy2-twonw_Z6EwARoW';
+const loading=document.getElementById('loading'),form=document.getElementById('form'),messageBox=document.getElementById('message'),submitButton=document.getElementById('submit');
+function showMessage(text,isError=false){messageBox.textContent=text;messageBox.classList.remove('hidden','error');if(isError)messageBox.classList.add('error')}
+function finishLoading(){loading.classList.add('hidden')}
 async function init(){
-  try{
-    if(!key) throw new Error('Link de recuperação incompleto. Solicite um novo e-mail.');
-    const sb=supabase.createClient(SUPABASE_URL,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-    const hash=new URLSearchParams(location.hash.replace(/^#/,''));
-    const access=hash.get('access_token'), refresh=hash.get('refresh_token');
-    if(access&&refresh){const r=await sb.auth.setSession({access_token:access,refresh_token:refresh});if(r.error)throw r.error}
-    const {data,error}=await sb.auth.getSession();
-    if(error)throw error;
-    if(!data.session) throw new Error('Este link expirou ou já foi utilizado. Solicite um novo link.');
-    document.getElementById('loading').classList.add('hidden');document.getElementById('form').classList.remove('hidden');
-    document.getElementById('form').onsubmit=async e=>{e.preventDefault();const p=document.getElementById('password').value,c=document.getElementById('confirm').value;if(p!==c){message('As senhas não conferem.','error');return}const btn=e.target.querySelector('button');btn.disabled=true;btn.classList.add('spinner');try{const r=await sb.auth.updateUser({password:p});if(r.error)throw r.error;document.getElementById('form').classList.add('hidden');message('Senha alterada com sucesso! Agora abra o Organize-se IA e entre com sua nova senha.','ok')}catch(err){message(err.message||'Não foi possível alterar a senha.','error')}finally{btn.disabled=false;btn.classList.remove('spinner')}}
-  }catch(err){document.getElementById('loading').classList.add('hidden');message(err.message||'Não foi possível validar o link.','error')}
+ try{
+  if('SUPABASE_PUBLISHABLE_KEY===sb_publishable_k-ILLorhWPA9YTy2-twonw_Z6EwARoW')throw new Error('Falta configurar a chave Publishable do Supabase nesta página.');
+  const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+  window.recoverySupabase=sb;
+  const query=new URLSearchParams(location.search),hash=new URLSearchParams(location.hash.replace(/^#/,'')),accessToken=hash.get('access_token')||query.get('access_token'),refreshToken=hash.get('refresh_token')||query.get('refresh_token'),type=hash.get('type')||query.get('type'),code=query.get('code');
+  let session=null;
+  if(accessToken&&refreshToken){if(type&&type!=='recovery')throw new Error('Este link não é de recuperação de senha. Solicite um novo e-mail.');const {data,error}=await sb.auth.setSession({access_token:accessToken,refresh_token:refreshToken});if(error)throw error;session=data.session}
+  else if(code){const {data,error}=await sb.auth.exchangeCodeForSession(code);if(error)throw error;session=data.session}
+  else{const {data,error}=await sb.auth.getSession();if(error)throw error;session=data.session}
+  if(!session)throw new Error('O link está incompleto, expirou ou já foi utilizado. Solicite um novo e-mail de recuperação.');
+  finishLoading();form.classList.remove('hidden');
+ }catch(error){finishLoading();showMessage(error?.message||'Não foi possível validar o link. Solicite um novo e-mail.',true)}
 }
+form.addEventListener('submit',async event=>{
+ event.preventDefault();const password=document.getElementById('password').value,confirm=document.getElementById('confirm').value;
+ if(password.length<6){showMessage('A senha precisa ter pelo menos 6 caracteres.',true);return}
+ if(password!==confirm){showMessage('As senhas não são iguais. Confira e tente novamente.',true);return}
+ submitButton.disabled=true;submitButton.textContent='SALVANDO...';
+ try{const {error}=await window.recoverySupabase.auth.updateUser({password});if(error)throw error;form.classList.add('hidden');showMessage('Senha alterada com sucesso! Volte ao aplicativo Organize-se IA e entre com sua nova senha.');history.replaceState(null,'',location.pathname)}
+ catch(error){showMessage(error?.message||'Não foi possível alterar a senha. Solicite um novo link.',true)}
+ finally{submitButton.disabled=false;submitButton.textContent='SALVAR NOVA SENHA'}
+});
 init();
-</script>
-</body>
-</html>
+</script></body></html>
