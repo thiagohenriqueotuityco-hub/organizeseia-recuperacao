@@ -33,7 +33,7 @@ function showMessage(text,isError=false){messageBox.textContent=text;messageBox.
 function finishLoading(){loading.classList.add('hidden')}
 async function init(){
  try{
-  if('SUPABASE_PUBLISHABLE_KEY===sb_publishable_k-ILLorhWPA9YTy2-twonw_Z6EwARoW')throw new Error('Falta configurar a chave Publishable do Supabase nesta página.');
+  if (!SUPABASE_PUBLISHABLE_KEY || !SUPABASE_PUBLISHABLE_KEY.startsWith('sb_publishable_')) throw new Error('Falta configurar uma chave Publishable válida do Supabase nesta página.');
   const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
   window.recoverySupabase=sb;
   const query=new URLSearchParams(location.search),hash=new URLSearchParams(location.hash.replace(/^#/,'')),accessToken=hash.get('access_token')||query.get('access_token'),refreshToken=hash.get('refresh_token')||query.get('refresh_token'),type=hash.get('type')||query.get('type'),code=query.get('code');
